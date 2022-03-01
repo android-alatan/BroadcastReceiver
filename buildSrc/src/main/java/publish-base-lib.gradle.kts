@@ -1,3 +1,6 @@
+import groovy.util.Node
+import groovy.util.NodeList
+
 plugins {
     id("maven-publish")
 }
@@ -16,7 +19,11 @@ afterEvaluate {
                 if (isAndroid) {
 
                     pom.withXml {
-                        val dependenciesNode = asNode().appendNode("dependencies")
+                        val rootNode = asNode()
+                        (rootNode.get("dependencies") as NodeList).forEach {
+                            rootNode.remove(it as Node)
+                        }
+                        val dependenciesNode = rootNode.appendNode("dependencies")
 
                         configurations.maybeCreate("api").dependencies.forEach {
                             addDependency(dependenciesNode.appendNode("dependency"), it, "compile")
